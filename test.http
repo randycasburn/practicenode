@@ -1,0 +1,14 @@
+###
+GET http://localhost:3000/things
+
+###
+POST http://localhost:3000/things 
+Content-Type: application/json
+
+{
+    "id":1,
+    "name":"Thing 1"
+}
+
+###
+GET http://localhost:3000/things/1
