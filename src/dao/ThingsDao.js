@@ -20,11 +20,22 @@ class ThingsDao {
         return 1;
     }
     updateThing(thing){
-        let hasOne = this.things[thing.id];
+        let hasOne = this.getThingById(thing.id);
         if(!hasOne) {
             throw new Error(`Thing with id: ${thing.id} doesn't exist to update!`)
         }
-        this.things[thing.id] = thing;
+        let index = this.things.findLastIndex(t=>t.id==hasOne.id);
+        this.things[index] = thing;
+        return 1;
+    }
+
+    deleteThing(id) {
+        let index = this.things.findLastIndex(t=>t.id==id);
+        if(index < 0) {
+            throw new Error(`Thing with id: ${id} doesn't exist to delete!`)
+        }
+        this.things[index] = null;
+        this.things = this.things.filter(t=>t!==null);
         return 1;
     }
 

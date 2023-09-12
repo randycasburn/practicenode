@@ -9,6 +9,7 @@ class ThingsController {
         routes.get('/things/:id', this.getThingById.bind(this));
         routes.post('/things/', this.addThing.bind(this));
         routes.put('/things/', this.updateThing.bind(this));
+        routes.delete('/things/:id', this.deleteThing.bind(this));
         return routes;
     }
 
@@ -65,7 +66,18 @@ class ThingsController {
         }
     }
     deleteThing(req, res) {
-        res.json({rowCount: 1});
+        let id = req.params.id;
+        if(!req.params.id || isNaN(req.params.id)) {
+            res.status(400).json({error: `The id: ${req.params.id} is invalid.`});
+        }
+        try {
+            const count = this.thingsDao.deleteThing(id);
+            count
+              ? res.json({rowCount: count})
+              : res.status(404);
+        } catch (err) {
+            res.status(500).json({error: err.message});
+        }
     }
 }
 
