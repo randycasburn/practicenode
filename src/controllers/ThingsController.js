@@ -7,6 +7,8 @@ class ThingsController {
         const routes = express.Router();
         routes.get('/things', this.getAllThings.bind(this));
         routes.get('/things/:id', this.getThingById.bind(this));
+        routes.post('/things/', this.addThing.bind(this));
+        routes.put('/things/', this.updateThing.bind(this));
         return routes;
     }
 
@@ -20,13 +22,15 @@ class ThingsController {
             res.status(500);
         }
     }
+
     getThingById(req, res) {
-        if(isNaN(req.params.id)) {
-            res.status(400).json({error: `The ${id} is invalid.`});
+        let id = req.params.id;
+        if(!req.params.id || isNaN(req.params.id)) {
+            res.status(400).json({error: `The id: ${req.params.id} is invalid.`});
         }
         try {
             const thing = this.thingsDao.getThingById(id);
-            thing 
+            thing
                 ? res.json(thing)
                 : res.status(404);
         } catch (err) {
@@ -35,13 +39,30 @@ class ThingsController {
     }
 
     addThing(req, res){
-        if(Object.values(req.body).filter(t=>t).length) {
-            throw new Error("Invalid thing")
+        if(!Object.values(req.body).filter(t=>t.length>0).length) {
+            throw new Error("Invalid thing");
         }
-        res.json({rowCount: 1});
+        try {
+            const count = this.thingsDao.addThing(req.body);
+            !count
+                ? res.status(400).send("thing not added.")
+                : res.json({rowCount: count});
+        } catch(err) {
+            res.status(400).json({error: err.message});
+        }
     }
     updateThing(req, res){
-        res.json({rowCount: 1});
+        if(!Object.values(req.body).filter(t=>t.length>0).length) {
+            throw new Error("Invalid thing");
+        }
+        try {
+            const count = this.thingsDao.updateThing(req.body);
+            !count
+              ? res.status(400).send("thing not updated.")
+              : res.json({rowCount: count});
+        } catch(err) {
+            res.status(400).json({error: err.message});
+        }
     }
     deleteThing(req, res) {
         res.json({rowCount: 1});
